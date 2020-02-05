@@ -1,5 +1,3 @@
-from GeneradorAutomatas import GeneradorAFN
-
 class ExpresionRegular():
 
 	"""
@@ -18,8 +16,7 @@ class ExpresionRegular():
 
 		self._expresion = expresion
 		self._alfabeto = alfabeto
-		self._operaciones = {'α':[0,GeneradorAFN.generarSimbolo], '|':[1,GeneradorAFN.generarUnion], '°':[1,GeneradorAFN.generarConcatenacion], '⁺':[2,GeneradorAFN.generarCerraduraPositiva],
-		'^+':[2,GeneradorAFN.generarCerraduraPositiva], '*':[2,GeneradorAFN.generarCerraduraKleene], '?':[2,GeneradorAFN.generarOpcional]}
+		self._operaciones = {'α':0, '|':1, '°':1, '⁺':2,'^+':2,'*':2,'?':2}
 		self._expresionPostfija = []
 		self._agrupadores = ['(',')','[',']','{','}']
 
@@ -42,16 +39,6 @@ class ExpresionRegular():
 
 	def inOperaciones(self, operador):
 		return operador in self._operaciones
-
-	def getOperacionConversionAFN(self, operador):
-		""" Método que regresa la función que transforma a la operación dada en ER a su homóloga en los AFNs
-
-			@param operador: string, cadena del operador utilizado en la ER
-			@returns función: GeneradorAFN.método, método perteneciente a la clase GeneradorAFN que genera el AFN de dicha operación según los parámetros ingresados // None: en caso de no existir tal operación	
-		"""
-		if self.inOperaciones(operador):
-			return self._operaciones[operador][1]
-		else: return None
 
 	# Setters
 
@@ -154,8 +141,8 @@ class ExpresionRegular():
 							break
 
 						# Se obtienen y evalúan las procedencias
-						procedenciaS = self._operaciones[s][0]
-						procedenciaSP = self._operaciones[pila[-1]][0]
+						procedenciaS = self._operaciones[s]
+						procedenciaSP = self._operaciones[pila[-1]]
 
 						if procedenciaS > procedenciaSP:
 							# La procedencia del símbolo de la cadena es mayor al de la pila e ingresa en la pila

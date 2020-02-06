@@ -8,6 +8,9 @@ class GeneradorAFN():
 
 	"""
 
+	@staticmethod
+	def __init__(self):
+
 
 	def _generarautomata(self,simbolo):
 		""" Función que genera un AFN de un símbolo dado
@@ -34,8 +37,9 @@ class GeneradorAFN():
 
 		#Creación de estados comunes
 		ef = Estado(nombre+'f',{},True)
-		e0 = Estado(nombre+'0',{})
-		afn.setEstadoInicial(e0)
+		e0 = Estado(nombre+'0',{},False,True)
+
+		afn.agregarEstado(e0)
 
 		for automata in automatas:
 			estadoInicial = automata.getEstadoInicial()
@@ -88,8 +92,7 @@ class GeneradorAFN():
 		afn = AFN(nombre)
 
 		ef = Estado(nombre+'f',{},True)
-		e0 = Estado(nombre+'0',{})
-		afn.setEstadoInicial(e0)
+		e0 = Estado(nombre+'0',{},False,True)
 
 		estadoInicial = automata.getEstadoInicial()
 		estadoAceptacion = automata.getEstadosAceptacion()[0]
@@ -100,7 +103,7 @@ class GeneradorAFN():
 		estadoAceptacion.agregarTransicion('ε',[estadoInicial,ef])
 		e0.agregarTransicion('ε',[estadoInicial])
 
-		afn.agregarEstados(automata.getEstados() + [ef])
+		afn.agregarEstados([e0] + automata.getEstados() + [ef])
 
 		return afn
 
@@ -125,8 +128,7 @@ class GeneradorAFN():
 		afn = AFN(nombre)
 
 		ef = Estado(nombre+'f',{},True)
-		e0 = Estado(nombre+'0',{})
-		afn.setEstadoInicial(e0)
+		e0 = Estado(nombre+'0',{},False,True)
 
 		estadoInicial = automata.getEstadoInicial()
 		estadoAceptacion = automata.getEstadosAceptacion()[0]
@@ -137,7 +139,8 @@ class GeneradorAFN():
 		estadoAceptacion.agregarTransicion('ε',[ef])
 		e0.agregarTransicion('ε',[estadoInicial,ef])
 
-		afn.agregarEstados(automata.getEstados() + [ef])
+		#Se agregan los estados que conforman al automata antes de realizar la operación
+		afn.agregarEstados([e0] + automata.getEstados() + [ef])
 
 		return afn
 
@@ -177,7 +180,7 @@ class GeneradorAFN():
 
 		afn.setAlfabeto(alfabeto)
 
-		return afn,'Generación correcta'
+		return afn,'Generación correcta del AFN'
 
 
 class GeneradorAFD(AFN):

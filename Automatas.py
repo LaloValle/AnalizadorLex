@@ -1,3 +1,5 @@
+import graphviz as gv
+
 class Estado():
 
 	"""
@@ -90,12 +92,12 @@ class Automata():
 	def getAlfabeto(self):
 		return self._alfabeto
 
-	def getEstado(self, nombre):
+	"""def getEstado(self, nombre):
 		for estado in self._estados:
 			if estado.getNombre() == nombre:
 				return estado
 			else:
-				return None
+				return None"""
 
 	def getEstadosAceptacion(self):
 		estadosAceptacion = []
@@ -152,15 +154,6 @@ class Automata():
 
 		return -1
 
-	def setEstadoInicial(self, estado):
-		estado.setInicial()
-
-		for estados in self._estados:
-			if estados.isInicial():
-				estados.setInicial(False)
-
-		self._estados.append(estado)
-
 	# Operaciones
 
 	def imprimirAutomataConsola(self):
@@ -195,6 +188,32 @@ class Automata():
 
 			print('>>>>>>>>>>>>>>>>>>>>>>\n')
 
+	def imprimirAutomata(self):
+
+		graficador = gv.Digraph(format='svg')
+		graficador.graph_attr['rankdir'] = 'LR'
+		graficador.node('ini', shape="point")
+
+		for estado in self._estados:
+			nombre = estado.getNombre()
+
+			if estado.isAceptacion():
+				graficador.node(nombre, shape="doublecircle")
+			else:
+				graficador.node(nombre)
+
+			if estado.isInicial():
+				graficador.edge('ini',nombre)
+
+		for estado in self._estados:
+			for simbolo, estadosTransiciones in estado.getTransiciones().items():
+				nombre = estado.getNombre()
+
+				for estadoTransicion in estadosTransiciones:
+					graficador.edge(nombre,estadoTransicion.getNombre(), label=simbolo)
+
+		graficador.render(view=True)
+
 
 	def eliminarEstado(self,estado):
 		self._estados.remove(estado)
@@ -210,6 +229,7 @@ class Automata():
 
 		pilaRevisados.append(estadoInicial)
 
+		#Se ingresan los primeros estados, transiciones del estado inicial, a la pila para la revisión
 		for simbolo,estados in estadoInicial.getTransiciones().items():
 			for estado in estados:
 				if estado not in pilaRevisados:
@@ -231,7 +251,8 @@ class Automata():
 					if estado not in pilaRevisados:
 						pilaPendientes.append(estado)
 
-		if not pilaPendientes and len(pilaPendientes) == len(self._estados):
+		#Se verifica si ya no hay estados pendientes por revisar y que el conjunto de estados revisados tenga el mismo número de elementos que el de los 'estados' de la clase
+		if not pilaPendientes and len(pilaRevisados) == len(self._estados):
 			return 0,'Renombre Correcto'
 		else:
 			return -1,'Error en el Renombre'

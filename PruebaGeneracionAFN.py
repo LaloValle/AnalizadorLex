@@ -12,10 +12,14 @@ error, mensaje = ER.conversionAPostfija()
 print(ER.getExpresionPostfija())
 
 if error != -1:
-	afn = GeneradorAFN.generarAFNDePostfija(ER.getExpresionPostfija(),ER.getAlfabeto())
+	afn,mensaje = GeneradorAFN.generarAFNDePostfija(ER.getExpresionPostfija(),ER.getAlfabeto())
+
+	print(mensaje)
 	if afn != -1:
+		n,mensaje2 = afn.renombreAutomaticoEstados('e')
+
+		print(mensaje2)
+
 		afn.imprimirAutomataConsola()
-	else:
-		print('Error en el Automata')
 else:
 	print('Error' + mensaje)

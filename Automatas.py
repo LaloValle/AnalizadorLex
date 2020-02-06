@@ -177,9 +177,9 @@ class Automata():
 
 			else:
 				print(estado.getNombre() + ': ', end='')
-					
+
 				for simbolo,es in estado.getTransiciones().items():
-					print('{' + simbolo,end='')
+					print('{' + simbolo + '=>',end='')
 
 					for n in es:
 						print(',' + n.getNombre(),end='')
@@ -198,6 +198,44 @@ class Automata():
 
 	def eliminarEstado(self,estado):
 		self._estados.remove(estado)
+
+	def renombreAutomaticoEstados(self,letra):
+
+		numero = 0
+		pilaRevisados = []
+		pilaPendientes = []
+		estadoInicial = self.getEstadoInicial()
+
+		estadoInicial.setNombre(letra + str(numero))
+
+		pilaRevisados.append(estadoInicial)
+
+		for simbolo,estados in estadoInicial.getTransiciones().items():
+			for estado in estados:
+				if estado not in pilaRevisados:
+					pilaPendientes.append(estado)
+
+		while pilaPendientes:
+			estadoAux = pilaPendientes.pop()
+
+			pilaRevisados.append(estadoAux)
+
+			if not estadoAux.isAceptacion():
+				numero += 1
+				estadoAux.setNombre(letra + str(numero))
+			else:
+				estadoAux.setNombre(letra + 'f')
+
+			for simbolo,estados in estadoAux.getTransiciones().items():
+				for estado in estados:
+					if estado not in pilaRevisados:
+						pilaPendientes.append(estado)
+
+		if not pilaPendientes and len(pilaPendientes) == len(self._estados):
+			return 0,'Renombre Correcto'
+		else:
+			return -1,'Error en el Renombre'
+
 
 
 class AFN(Automata):

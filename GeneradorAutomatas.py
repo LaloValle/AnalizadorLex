@@ -7,24 +7,9 @@ class GeneradorAFN():
 		Clase generadora de AFNs con el paso de símbolos pertenecientes al alfabeto de una expresión regular o de AFNs también generados por algún método de esta clase
 
 	"""
-	def _ingresosMismoTipo(self,ingresos):
-		""" Verifica que dos 'simbolos' ingresados seán de tipo str o AFN, si no llegarán a ser del mismo tipo entonces convertirá al símbolo en un AFN
-
-			@param ingresos: list, lista de los dos ingresos
-		"""
-		aux = ingresos
-
-		if type(ingresos[0]) != type(ingresos[1]):
-			aux = []
-			for s in ingresos:
-				if type(s) == str:
-					s = self._generarSimbolo(s)
-				aux.append(s)
-
-		return aux
 
 
-	def _generarSimbolo(self,simbolo):
+	def _generarautomata(self,simbolo):
 		""" Función que genera un AFN de un símbolo dado
 			@param simbolo : string
 			@returns afn : AFN """
@@ -38,124 +23,123 @@ class GeneradorAFN():
 
 		return afn
 
-	def _generarUnion(self,simbolos):
+	def _generarUnion(self,automatas):
 		""" Función que genera un AFN con la operación de union para dos símbolos o dos AFN dado
-			@param simbolos : list
+			@param automatas : list
 			@returns afn : AFN """
 
-		#Verifica que los dos ingresos sean o str o AFNs
-		simbolos = self._ingresosMismoTipo(simbolos)
-
-		nombre = simbolos[1].getNombre() + '|' + simbolos[0].getNombre() if type(simbolos[0]) == AFN else simbolos[1] + '|' + simbolos[0]
+		nombre = automatas[1].getNombre() + '|' + automatas[0].getNombre()
 
 		afn = AFN(nombre)
 
-		nombre = '(' + nombre + ')'
 		#Creación de estados comunes
 		ef = Estado(nombre+'f',{},True)
 		e0 = Estado(nombre+'0',{})
 		afn.setEstadoInicial(e0)
 
-		# llave :[estado transición del inicial, estado que transiciona a estado final]
-		estadosAux = {}
+		for automata in automatas:
+			estadoInicial = automata.getEstadoInicial()
+			estadoAceptacion = automata.getEstadosAceptacion()[0]
 
-		#Se verifica que tipo de argumentos se han ingresado
-		if type(simbolos[0]) == AFN:
-			#Se han ingresado AFNs
+			estadoInicial.setInicial(False)
+			estadoAceptacion.setAceptacion(False)
 
-			for automata in simbolos:
-				estadoAceptacion = automata.getEstadosAceptacion()
-				estadoAceptacion[0].setAceptacion(False)
-				estadosAux[len(estadosAux)] = [automata.getEstadoInicial(),estadoAceptacion[0]]
+			e0.agregarTransicion('ε',[estadoInicial])
+			estadoAceptacion.agregarTransicion('ε',[ef])
 
-				afn.agregarEstados(automata.getEstados())
-
-		elif type(simbolos[0]) == str:
-			# Se han ingresado símbolos
-			numeracion = 1
-
-			for simbolo in simbolos:
-				e2 = Estado(nombre+str(numeracion+1))
-				e1 = Estado(nombre+str(numeracion), {simbolo:[e2]})
-
-				estadosAux[numeracion] = [e1,e2]
-
-				numeracion += 2
-
-		#Se asignan las transciciones del estado inicial y al estado final
-		for llave, estados in estadosAux.items():
-			e0.agregarTransicion('ε',[estados[0]])
-			estados[1].agregarTransicion('ε',[ef])
-
-			#Se agregan los estados al AFN
-			afn.agregarEstado(estados[0])
-			afn.agregarEstado(estados[1])
+			afn.agregarEstados(automata.getEstados())
 
 		#Se agrega el estado de aceptación
 		afn.agregarEstado(ef)
 
 		return afn
 
-	def _generarConcatenacion(self,simbolos):
+	def _generarConcatenacion(self,automatas):
 		""" Función que genera un AFN con la operación de concatenación para dos símbolos o dos AFN dado
-			@param simbolos : list
+			@param automatas : list
 			@returns afn : AFN """
 
-		#Verifica que los dos ingresos sean o str o AFNs
-		simbolos = self._ingresosMismoTipo(simbolos)
-
-		nombre = simbolos[1].getNombre() + '°' + simbolos[0].getNombre() if type(simbolos[0]) == AFN else simbolos[1] + '°' + simbolos[0]
+		nombre = automatas[1].getNombre() + '°' + automatas[0].getNombre()
 
 		afn = AFN(nombre)
 
-		nombre = '(' + nombre + ')'
+		#El estado final del primer autómata se convierte en el primer estado del segundo
+		automatas[1].getEstadosAceptacion()[0].setTransiciones(automatas[0].getEstadoInicial().getTransiciones())
 
-		#Se verifica que tipo de argumentos se han ingresado
-		if type(simbolos[0]) == AFN:
-			#Se han ingresado AFNs
+		#Se le elimina al estado de aceptación del primer automata la propiedad de ser aceptación
+		automatas[1].getEstadosAceptacion()[0].setAceptacion(False)
+		#Se elimina el estado inicial del segundo autómata
+		automatas[0].eliminarEstado(automatas[0].getEstadoInicial())
 
-			#El estado final del primer autómata se convierte en el primer estado del segundo
-			simbolos[1].getEstadosAceptacion()[0].setTransiciones(simbolos[0].getEstadoInicial().getTransiciones())
-
-			#Se le elimina al estado de aceptación del primer automata la propiedad de ser aceptación
-			simbolos[1].getEstadosAceptacion()[0].setAceptacion(False)
-			#Se elimina el estado inicial del segundo autómata
-			simbolos[0].eliminarEstado(simbolos[0].getEstadoInicial())
-
-			#Se conforma el nuevo autómata con las modificaciones realizadas
-			afn.agregarEstados(simbolos[1].getEstados())
-			afn.agregarEstados(simbolos[0].getEstados())
-
-		elif type(simbolos[0]) == str:
-			# Se han ingresado símbolos
-
-			ef = Estado(nombre+'f',{},True)
-			e1 = Estado(nombre+'1',{simbolos[0]:[ef]})
-			e0 = Estado(nombre+'0',{simbolos[1]:[e1]},False,True)
-
-			afn.agregarEstados([e0,e1,ef])
+		#Se conforma el nuevo autómata con las modificaciones realizadas
+		afn.agregarEstados(automatas[1].getEstados())
+		afn.agregarEstados(automatas[0].getEstados())
 
 		return afn
 
 
-	def _generarCerraduraPositiva(self,simbolo):
+	def _generarCerraduraPositiva(self,automata):
 		""" Función que genera un AFN con la operación de cerradura para un símbolo o un AFN dado
-			@param simbolo : list
+			@param automata : list
 			@returns afn : AFN """
-		pass
+		automata = automata[0]
+		nombre = automata.getNombre()
 
-	def _generarCerraduraKleene(self,simbolo):
+		afn = AFN(nombre)
+
+		ef = Estado(nombre+'f',{},True)
+		e0 = Estado(nombre+'0',{})
+		afn.setEstadoInicial(e0)
+
+		estadoInicial = automata.getEstadoInicial()
+		estadoAceptacion = automata.getEstadosAceptacion()[0]
+
+		estadoInicial.setInicial(False)
+		estadoAceptacion.setAceptacion(False)
+
+		estadoAceptacion.agregarTransicion('ε',[estadoInicial,ef])
+		e0.agregarTransicion('ε',[estadoInicial])
+
+		afn.agregarEstados(automata.getEstados() + [ef])
+
+		return afn
+
+	def _generarCerraduraKleene(self,automata):
 		""" Función que genera un AFN con la operación de cerradura de Kleene para un símbolo o un AFN dado
-			@param simbolo : list
+			@param automata : list
 			@returns afn : AFN """
-		pass
 
-	def _generarOpcional(self,simbolo):
+		afn = self._generarCerraduraPositiva(automata)
+
+		afn.getEstadoInicial().agregarTransicion('ε',[afn.getEstadosAceptacion()[0]])
+
+		return afn
+
+	def _generarOpcional(self,automata):
 		""" Función que genera un AFN con la operación de opcional para un símbolo o un AFN dado
-			@param simbolo : list
+			@param automata : list
 			@returns afn : AFN """
-		pass
+		automata = automata[0]
+		nombre = automata.getNombre()
 
+		afn = AFN(nombre)
+
+		ef = Estado(nombre+'f',{},True)
+		e0 = Estado(nombre+'0',{})
+		afn.setEstadoInicial(e0)
+
+		estadoInicial = automata.getEstadoInicial()
+		estadoAceptacion = automata.getEstadosAceptacion()[0]
+
+		estadoInicial.setInicial(False)
+		estadoAceptacion.setAceptacion(False)
+
+		estadoAceptacion.agregarTransicion('ε',[ef])
+		e0.agregarTransicion('ε',[estadoInicial,ef])
+
+		afn.agregarEstados(automata.getEstados() + [ef])
+
+		return afn
 
 	@staticmethod
 	def generarAFNDePostfija(postfija, alfabeto):
@@ -164,40 +148,36 @@ class GeneradorAFN():
 		operaciones = {'|':[2,generador._generarUnion], '°':[2,generador._generarConcatenacion], '⁺':[1,generador._generarCerraduraPositiva],'^+':[1,generador._generarCerraduraPositiva], '*':[1,generador._generarCerraduraKleene], '?':[1,generador._generarOpcional]}
 
 		pilaSimbolos = []
+		afn = None
 
 		for s in postfija:
 			if s in operaciones:
 				#Es una operación
 
-				simbolosOperar = []
+				automatasOperar = []
 
-				#Se obtiene los simbolos que serán operados
+				#Se obtiene los automatas que serán operados
 				for _ in range(operaciones[s][0]):
-					simbolosOperar.append(pilaSimbolos.pop())
+					automatasOperar.append(pilaSimbolos.pop())
 
 				#Se llama la función para operar los símbolos o AFN
-				pilaSimbolos.append(operaciones[s][1](simbolosOperar))
+				pilaSimbolos.append(operaciones[s][1](automatasOperar))
 
 			else:
 				#Es un símbolo perteneciente al alfabeto
 				if s in alfabeto:
-					pilaSimbolos.append(s)
+					pilaSimbolos.append(generador._generarautomata(s))
 				else:
-					return -1
+					return -1,'Símbolo no reconocido como operación ni perteneciente al alfabeto'
 
-		#Se verifica el caso en el que solo sea necesite transformar el AFN de un símbolo
-		if len(pilaSimbolos) > 0:
-			if type(pilaSimbolos[-1]) == str:
-				afn = generador._generarSimbolo(pilaSimbolos.pop())
-
-			elif type(pilaSimbolos[-1]) == AFN:
-				afn = pilaSimbolos.pop()
+		if type(pilaSimbolos[-1]) == AFN and len(pilaSimbolos) == 1:
+			afn = pilaSimbolos.pop()
+		else:
+			return -1,'El resultado de la pila no es un autómata o existen más elementos'
 
 		afn.setAlfabeto(alfabeto)
 
-		return afn
-		
-
+		return afn,'Generación correcta'
 
 
 class GeneradorAFD(AFN):

@@ -1,5 +1,12 @@
 from Automatas import AFN,Estado
 
+"""
+	Para la ejecución de graphviz:
+
+	Ubuntu $ sudo apt install python-pydot python-pydot-ng graphviz
+
+"""
+
 class GeneradorAFN():
 
 	"""
@@ -7,10 +14,6 @@ class GeneradorAFN():
 		Clase generadora de AFNs con el paso de símbolos pertenecientes al alfabeto de una expresión regular o de AFNs también generados por algún método de esta clase
 
 	"""
-
-	@staticmethod
-	def __init__(self):
-
 
 	def _generarautomata(self,simbolo):
 		""" Función que genera un AFN de un símbolo dado

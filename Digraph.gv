@@ -3,75 +3,23 @@ digraph {
 	ini [shape=point]
 	e0
 	ini -> e0
-	e25
-	e29
-	e30
-	e26
-	e27
-	e28
-	e1
 	e2
+	e6
+	e7
 	e3
 	e4
 	e5
-	e6
-	e7
-	e8
-	e9
-	e23
-	e24
-	e10
-	e11
-	e12
-	e17
-	e21
-	e22
-	e18
-	e19
-	e20
-	e13
-	e14
-	e15
-	e16
+	e1
 	ef [shape=doublecircle]
-	e0 -> e25 [label="ε"]
+	e0 -> e2 [label="ε"]
 	e0 -> e1 [label="ε"]
-	e25 -> e29 [label="ε"]
-	e25 -> e26 [label="ε"]
-	e29 -> e30 [label="-"]
-	e30 -> e28 [label="ε"]
-	e26 -> e27 [label="+"]
-	e27 -> e28 [label="ε"]
-	e28 -> e1 [label="ε"]
-	e1 -> e2 [label="ε"]
-	e2 -> e3 [label=D]
-	e3 -> e2 [label="ε"]
-	e3 -> e4 [label="ε"]
-	e4 -> e5 [label="."]
-	e5 -> e6 [label="ε"]
-	e6 -> e7 [label=D]
-	e7 -> e6 [label="ε"]
-	e7 -> e8 [label="ε"]
-	e8 -> e9 [label="ε"]
-	e8 -> ef [label="ε"]
-	e9 -> e23 [label="ε"]
-	e9 -> e10 [label="ε"]
-	e23 -> e24 [label=e]
-	e24 -> e12 [label="ε"]
-	e10 -> e11 [label=E]
-	e11 -> e12 [label="ε"]
-	e12 -> e17 [label="ε"]
-	e12 -> e13 [label="ε"]
-	e17 -> e21 [label="ε"]
-	e17 -> e18 [label="ε"]
-	e21 -> e22 [label="-"]
-	e22 -> e20 [label="ε"]
-	e18 -> e19 [label="+"]
-	e19 -> e20 [label="ε"]
-	e20 -> e13 [label="ε"]
-	e13 -> e14 [label="ε"]
-	e14 -> e15 [label=D]
-	e15 -> e14 [label="ε"]
-	e15 -> e16 [label="ε"]
-	e16 -> ef [label="ε"]
+	e2 -> e6 [label="ε"]
+	e2 -> e3 [label="ε"]
+	e6 -> e7 [label=L]
+	e7 -> e5 [label="ε"]
+	e3 -> e4 [label=S]
+	e4 -> e5 [label="ε"]
+	e5 -> e2 [label="ε"]
+	e5 -> e1 [label="ε"]
+	e1 -> ef [label=8]
 }

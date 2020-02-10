@@ -15,7 +15,7 @@ class GeneradorAFN():
 
 	"""
 
-	def _generarautomata(self,simbolo):
+	def _generarAutomata(self,simbolo):
 		""" Función que genera un AFN de un símbolo dado
 			@param simbolo : string
 			@returns afn : AFN """
@@ -66,21 +66,21 @@ class GeneradorAFN():
 			@param automatas : list
 			@returns afn : AFN """
 
-		nombre = automatas[1].getNombre() + '°' + automatas[0].getNombre()
+		nombre = automatas[0].getNombre() + '°' + automatas[1].getNombre()
 
 		afn = AFN(nombre)
 
 		#El estado final del primer autómata se convierte en el primer estado del segundo
-		automatas[1].getEstadosAceptacion()[0].setTransiciones(automatas[0].getEstadoInicial().getTransiciones())
+		automatas[0].getEstadosAceptacion()[0].setTransiciones(automatas[1].getEstadoInicial().getTransiciones())
 
 		#Se le elimina al estado de aceptación del primer automata la propiedad de ser aceptación
-		automatas[1].getEstadosAceptacion()[0].setAceptacion(False)
+		automatas[0].getEstadosAceptacion()[0].setAceptacion(False)
 		#Se elimina el estado inicial del segundo autómata
-		automatas[0].eliminarEstado(automatas[0].getEstadoInicial())
+		automatas[1].eliminarEstado(automatas[1].getEstadoInicial())
 
 		#Se conforma el nuevo autómata con las modificaciones realizadas
-		afn.agregarEstados(automatas[1].getEstados())
 		afn.agregarEstados(automatas[0].getEstados())
+		afn.agregarEstados(automatas[1].getEstados())
 
 		return afn
 
@@ -166,13 +166,16 @@ class GeneradorAFN():
 				for _ in range(operaciones[s][0]):
 					automatasOperar.append(pilaSimbolos.pop())
 
+				if s == '|' or s == '°':
+					automatasOperar.reverse()
+
 				#Se llama la función para operar los símbolos o AFN
 				pilaSimbolos.append(operaciones[s][1](automatasOperar))
 
 			else:
 				#Es un símbolo perteneciente al alfabeto
 				if s in alfabeto:
-					pilaSimbolos.append(generador._generarautomata(s))
+					pilaSimbolos.append(generador._generarAutomata(s))
 				else:
 					return -1,'Símbolo no reconocido como operación ni perteneciente al alfabeto'
 

@@ -3,23 +3,13 @@ digraph {
 	ini [shape=point]
 	e0
 	ini -> e0
-	e2
-	e6
-	e7
-	e3
-	e4
-	e5
 	e1
+	e2
+	e3
 	ef [shape=doublecircle]
-	e0 -> e2 [label="ε"]
 	e0 -> e1 [label="ε"]
-	e2 -> e6 [label="ε"]
+	e1 -> e2 [label=D]
+	e2 -> e1 [label="ε"]
 	e2 -> e3 [label="ε"]
-	e6 -> e7 [label=L]
-	e7 -> e5 [label="ε"]
-	e3 -> e4 [label=S]
-	e4 -> e5 [label="ε"]
-	e5 -> e2 [label="ε"]
-	e5 -> e1 [label="ε"]
-	e1 -> ef [label=8]
+	e3 -> ef [label="."]
 }

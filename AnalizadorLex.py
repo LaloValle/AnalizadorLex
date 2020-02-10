@@ -1,0 +1,3 @@
+from VistaAnalizadorLex import *
+
+VistaAnalizadorLex()

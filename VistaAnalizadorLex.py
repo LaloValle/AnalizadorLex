@@ -49,6 +49,10 @@ class VistaAnalizadorLex():
         self._AFNguardadoSeleccionado = -1
         self._AFNBotonesGuardado = []
 
+        #Variables de interes para la opción de AFD's
+        self._AFDCargarEstados = None
+        self._AFDBotonesGuardado = []
+
         #Variables de interes para la opción de Graficar
         self._GraficarSeleccionado = None
 
@@ -196,8 +200,84 @@ class VistaAnalizadorLex():
         return frame2
 
     def _crearFrameAFD(self):
+        opcionesGuardado = ['', 'Automata 1', 'Automata 2', 'Automata 3']
+
+        AFDGuardadoCargado1 = StringVar()
+        AFDGuardadoCargado1.set(opcionesGuardado[0])
+
+        AFNEstados = StringVar()
+        AFNEstados.set('')
+
         frame3=Frame(self._framePrincipal)
-        frame3.config(bg="#0F9D58")
+        frame3.config(bg="#004445", height=400)
+        
+        label6=Label(frame3 , text="Operaciones y generador de AFD's")
+        label6.grid(row=0,column=0,padx=10, pady=10, columnspan=2, sticky='w') 
+        label6.config(bg="#004445", font=("Helvetica",16,"bold"), fg='white')
+        
+        label7=Label(frame3 , text="Selección del AFN base:")
+        label7.grid(row=1,column=0,padx=10, pady=10, sticky='w') 
+        label7.config(bg="#004445", fg='white')
+        
+        label8=Label(frame3 , text="Estados del AFN:")
+        label8.grid(row=1,column=2,padx=10, pady=10, sticky='w') 
+        label8.config(bg="#004445", fg='white')
+
+        self._AFDCargarEstados = OptionMenu(frame3, AFNEstados , *[''])
+        self._AFDCargarEstados.grid(row=2,column=2,padx=10, pady=10)
+        self._AFDCargarEstados.config(activebackground="#004445", relief='flat',width=10, activeforeground='white', bg='#6fb98f', fg='white')
+
+        cargar1 = OptionMenu(frame3, AFDGuardadoCargado1 , *opcionesGuardado, command=self.cargarEstadosAFNSeleccionado)
+        cargar1.grid(row=2,column=0,sticky="n",padx=10, pady=10, columnspan=2)
+        cargar1.config(activebackground="#004445", relief='flat', width=30,activeforeground='white', bg='#6fb98f', fg='white')
+        
+        label9=Label(frame3 , text="Símbolo:")
+        label9.grid(row=1,column=4,padx=10, pady=10, sticky='w') 
+        label9.config(bg="#004445", fg='white')
+
+        self._AFDSimbolo= Entry(frame3)
+        self._AFDSimbolo.grid(row=2,column=4,sticky="e",padx=10, pady=10)
+        self._AFDSimbolo.config(width=15)  
+
+        Boton8= Button(frame3, text="Cerradura ε")
+        Boton8.grid(row=3,column=0,sticky="n",padx=10, pady=10)
+        Boton8.config(activebackground="#004445", relief='flat', activeforeground='white', width=15, bg='#6fb98f', fg='white') 
+        Boton8.config(command=lambda:self._logica.operacionAFN('α'))
+        
+        Boton9= Button(frame3, text="Mover")
+        Boton9.grid(row=3,column=1,sticky="n",padx=10, pady=10)
+        Boton9.config(activebackground="#004445", relief='flat', activeforeground='white', width=15, bg='#6fb98f', fg='white')  
+        Boton9.config(command=lambda:self._logica.operacionAFN('⁺'))
+        
+        Boton10= Button(frame3, text="Ir A")
+        Boton10.grid(row=4,column=0,sticky="n",padx=10, pady=10)
+        Boton10.config(activebackground="#004445", relief='flat', activeforeground='white', width=15, bg='#6fb98f', fg='white') 
+        Boton10.config(command=lambda:self._logica.operacionAFN('*'))
+
+        Boton11= Button(frame3, text="Añadir a Autómata transiciones ε")
+        Boton11.grid(row=5,column=0,sticky="n",padx=10, pady=10, columnspan=2)
+        Boton11.config(activebackground="#004445", relief='flat', activeforeground='white', bg='#6fb98f', fg='white') 
+        Boton11.config(command=lambda:self._logica.operacionAFN('?'))
+                       
+        label7=Label(frame3 , text="Guardar en:")
+        label7.grid(row=3,column=2,sticky="w",padx=10, pady=10) 
+        label7.config(bg="#004445", fg='white')
+                     
+        boton12= Button(frame3, text="Automata 1", command=lambda: self.opcionGuardadoSeleccionada(0,'AFD'))
+        boton12.grid(row=4,column=2,sticky="n",padx=10, pady=10)
+        boton12.config(bg="#004445", fg='white', activeforeground='#004445')
+        
+        boton13=Button(frame3, text="Automata 2", command=lambda: self.opcionGuardadoSeleccionada(1,'AFD'))
+        boton13.grid(row=4,column=3,sticky="w",padx=10, pady=10)
+        boton13.config(bg="#004445", fg='white', activeforeground='#004445')
+        
+        boton14= Button(frame3, text="Automata 3", command=lambda: self.opcionGuardadoSeleccionada(2,'AFD'))
+        boton14.grid(row=4,column=4,sticky="n",padx=10, pady=10)
+        boton14.config(bg="#004445", fg='white', activeforeground='#004445')
+
+        self._AFDBotonesGuardado = [boton12, boton13, boton14]
+
+        return frame3
 
     def _crearFrameGraficar(self):
 
@@ -275,7 +355,7 @@ class VistaAnalizadorLex():
 
         botonAFD= Button(self._frameOpciones, text="AFD", width=22, pady=5, justify='center')
         botonAFD.config(command=lambda:self.opcionPresionada(botonAFD,"AFD"))
-        botonAFD.config(bg="#6fb98f", fg='white', relief='flat', bd=0, state='disable')
+        botonAFD.config(bg="#6fb98f", fg='white', relief='flat', bd=0)
         botonAFD.config(activebackground="#2c7873", activeforeground='white')
         botonAFD.grid(row=0, column=2)
 
@@ -321,7 +401,7 @@ class VistaAnalizadorLex():
     def opcionPresionada(self, opcion, nombre):
 
             opciones = {'ER':0, 'AFN':1, 'AFD':2, 'G':3}
-            padDic = {'ER':109, 'AFN':56, 'G':129.5}
+            padDic = {'ER':109, 'AFN':56, 'AFD':56, 'G':129.5}
 
             if self._botonOpcionesActual != None:
                 self._botonOpcionesActual.config(bg="#6fb98f", fg='white', activebackground="#2c7873", activeforeground='white')
@@ -344,9 +424,38 @@ class VistaAnalizadorLex():
             self._AFNBotonesGuardado[seleccion].config(bg="#2c7873", fg='white', activebackground='#2c7873', activeforeground='white')
             self._AFNguardadoSeleccionado = seleccion
 
+        if seccion == 'AFD':
+            if self._AFNguardadoSeleccionado >= 0:
+                self._AFDBotonesGuardado[self._AFNguardadoSeleccionado].config(bg="#004445", fg='white', activeforeground='#004445', activebackground='white')
+
+            self._AFDBotonesGuardado[seleccion].config(bg="#2c7873", fg='white', activebackground='#2c7873', activeforeground='white')
+            self._AFNguardadoSeleccionado = seleccion
+
         if seccion == 'ER':
             if self._ERGuardadoSeleccionado >= 0:
                 self._ERBotonesGuardado[self._ERGuardadoSeleccionado].config(bg="#004445", fg='white', activeforeground='#004445', activebackground='white')
 
             self._ERBotonesGuardado[seleccion].config(bg="#2c7873", fg='white', activebackground='#2c7873', activeforeground='white')
             self._ERGuardadoSeleccionado = seleccion
+
+
+    def cargarEstadosAFNSeleccionado(self, numAutomata):
+        indice = int(numAutomata[-1]) -1
+        listaEstados = ['']
+
+        AFNEstados = StringVar()
+        AFNEstados.set('')
+
+        automata = self._logica.getAutomataGuardado(indice)
+
+        if automata != None:
+            for estado in automata.getEstados():
+                listaEstados.append(estado.getNombre())
+
+            self._AFDCargarEstados = OptionMenu(self._framesOperaciones[2], AFNEstados , *listaEstados)
+
+        else:
+            self._AFDCargarEstados = OptionMenu(self._framesOperaciones[2], AFNEstados , *[''])
+        
+        self._AFDCargarEstados.grid(row=2,column=2,padx=10, pady=10)
+        self._AFDCargarEstados.config(activebackground="#004445", relief='flat',width=10, activeforeground='white', bg='#6fb98f', fg='white')

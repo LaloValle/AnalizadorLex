@@ -17,6 +17,7 @@ class Estado():
 		self._transiciones = transiciones
 		self._aceptacion = aceptacion
 		self._inicial = inicial
+		self._token = 0
 
 	# Getters
 
@@ -26,11 +27,20 @@ class Estado():
 	def getTransiciones(self):
 		return self._transiciones
 
+	def getEstadosTransicion(self, simbolo):
+		if simbolo not in self._transiciones:
+			return []
+
+		return self._transiciones[simbolo]
+
 	def isAceptacion(self):
 		return self._aceptacion
 
 	def isInicial(self):
 		return self._inicial
+
+	def getToken(self):
+		return self._token
 
 	# Setters
 
@@ -53,6 +63,9 @@ class Estado():
 					self._transiciones[simbolo].append(estado)
 		else:
 			self._transiciones[simbolo] = estados
+
+	def setToken(self, token):
+		self._token = token
 
 	# Operaciones
 
@@ -269,15 +282,6 @@ class AFN(Automata):
 
 	def __init__(self, nombre, estados =[], alfabeto = []):
 		Automata.__init__(self, nombre, estados, alfabeto)
-
-	def cerraduraEpsilon(self, estados = []):
-		""" Caso especial de la operación mover donde se obtienen el número máximo de estados que transicionan desde el primer estado con 'ɛ' como símbolo
-
-			@param estados : lista de estados que transicionan con ɛ
-			@returns 0: en caso correcto // -1 : en un error en el proceso de la operación
-			El resultado de los estados que transicionan con 'ɛ' se agregarán a la lista 'estados' pasada como parámetro
-		"""
-		pass
 
 
 class AFD(Automata):

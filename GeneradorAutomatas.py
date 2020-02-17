@@ -1,4 +1,4 @@
-from Automatas import AFN,Estado
+from Automatas import *
 
 """
 	Para la ejecución de graphviz:
@@ -19,7 +19,7 @@ class GeneradorAFN():
 		""" Función que genera un AFN de un símbolo dado
 			@param simbolo : string
 			@returns afn : AFN """
-		nombre = simbolo[0]
+		nombre = simbolo
 
 		ef = Estado(nombre+'f',{},True)
 		e0 = Estado(nombre+'0',{nombre:[ef]},False,True)
@@ -189,80 +189,135 @@ class GeneradorAFN():
 		return afn,'Generación correcta del AFN'
 
 
-class GeneradorAFD(AFN):
+class GeneradorAFD():
 
 	"""
 
 		Clase generadora de los AFD a partir de los estados que conforman a un AFN
 
-		estadosNoAnalizados:	Diccionario que representa a un subconjunto de estados resultado de la operación 'generalizar' y a lo cuales aún no se les ha aplicado dicha operación, la llave es la lista de los estados y el elemento descrito por la llave el nombre del nuevo estado convertido
-		estadosAnalizados:		Diccionario que representa al subconjunto de estados operados por 'generalizar'
-
-
 	"""
 
-	def __init__(self, estadosNoAnalizados = {}, estadosAnalizados = {}):
-		self._estadosNoAnalizados = {}
-		self._estadosAnalizados = {}
+	def _mover(self, estados, simbolo):
+		conjuntoResultado = set()
+
+		for _ in range(len(estados)):
+			estado = estados.pop()
+
+			conjuntoResultado |= set(estado.getEstadosTransicion(simbolo))
+
+		return conjuntoResultado
+
+	def _cerraduraEpsilon(self, estados):
+		conjuntoResultado = set(estados)
+
+		for _ in range(len(estados)):
+			estado = estados.pop()
+
+			auxResultado = set(estado.getEstadosTransicion('ε'))
+
+			conjuntoResultado |= self._cerraduraEpsilon(auxResultado)
+
+		return conjuntoResultado
+
+	def _irA(self, estados, simbolo):
+		return self._cerraduraEpsilon(self._mover(estados, simbolo))
+
+	def _crearNuevoEstadoConvertido(self, estadosAFN, numEstado, inicial = False):
+		aceptacion = False
+
+		for auxEstado in range(len(estadosAFN)):
+			if estadosAFN.pop().isAceptacion():
+				aceptacion = True
+				break
+
+		return Estado('s{}'.format(str(numEstado)),{},aceptacion, inicial)
+
+	def _imprimirConjuntoEstados(self, conjunto):
+		print('{')
+		while len(conjunto) > 0:
+			print(conjunto.pop().getNombre(),end=',')
+
+		print('}')
 
 
-	# Getters
+	@staticmethod
+	def generarAFDDeAFN(automata):
+		#La llave se refiere al conjunto de estados del AFN resultados de una operación irA, y el valor asociado el estado instancia de la clase Estado que es utilizado en el nuevo AFD
+		estadosConvertidos = {}
+		#La llave se refiere al conjunto de estados obtenidos de la operación mover, y el valor asociado al conjunto de estados del autómata AFN que resulta de la operación irA con dicho conjunto de la operación Mover
+		resultadosMover = {}
+		estadosNoAnalizados = []
 
-	def getEstadosNoAnalizados(self):
-		return self._estadosNoAnalizados
+		numEstado = 1
 
-	def getEstadosAnalizados(self):
-		return self._estadosAnalizados
+		generador = GeneradorAFD()
+		afd = AFD(automata.getNombre())
+		afd.setAlfabeto(automata.getAlfabeto())
 
-	def isEstadoNoAnalizado(self, estados):
-		return self._estadoNoAnalizado[estados]
+		#Creación estado S0
+		estadoInicial = generador._cerraduraEpsilon([automata.getEstadoInicial()])
+		estadosConvertidos[frozenset(estadoInicial)] = generador._crearNuevoEstadoConvertido(set(estadoInicial) , 0, True)
+		estadosNoAnalizados.append(estadoInicial)
 
-	def isEstadoAnalizado(self, estados):
-		return self._estadoAnalizado[estados]
+		while estadosNoAnalizados:
+			#print('entramos ' + str(numEstado))
 
-	def obtenerNombreEstadosAnalizados(self, estados):
-		""" Método que devuelve el nombre dado a un conjunto de estados después de la operación generalizar, buscando tanto en los estados ya analizados y los aún no analizadas
+			estado = estadosNoAnalizados[0]
+			#print(estado)
+			#generador._imprimirConjuntoEstados(set(estado))
+			estadosNoAnalizados.remove(estado)
 
-			@param estados: list, conjunto de los estados que definen al nombre del nuevo estado
-			@returns estadosAnalizados[estados] : string, nombre del conjunto de estados; ''(cadena vacía) : en caso de no existir el conjunto en los diccionarios """
+			#print(type(estado))
 
-		if estados in self._estadosAnalizados:
-			return self._estadosAnalizados[estados]
-		elif estados in self._estadosNoAnalizados:
-			return self._estadosNoAnalizados[estados]
-		else:
-			return ''
+			for simbolo in afd.getAlfabeto():
+				#print('en simbolo ' + simbolo)
+				resultadoMover = generador._mover(set(estado), simbolo)
+				#print('resultadoMover')
 
-	# Setters
+				#generador._imprimirConjuntoEstados(set(resultadoMover))
 
-	def agregarEstadoNoAnalizado(self, estados, nombre):
-		self._estadoNoAnalizado[estados] = nombre
+				inResultadoMover = False
+				for resMover in resultadosMover.keys():
+					if set(resMover) == resultadoMover:
+						inResultadoMover = True
+						resultadoMover = resMover
+						break
 
-	def agregarEstadoAnalizado(self, estados, nombre):
-		self._estadoAnalizado[estados] = nombre
+				if not inResultadoMover:
+					estadoNuevo = generador._irA(set(estado), simbolo)
 
-	# Operaciones
+					#Se verifica que existan estados en la operación 
+					if len(estadoNuevo) > 0:
+						estadosConvertidos[frozenset(estadoNuevo)] = generador._crearNuevoEstadoConvertido(set(estadoNuevo), numEstado)
+						estadosNoAnalizados.append(estadoNuevo)
 
-	def generalizar(self, estado, simbolo, letraNombre = 'S', cuentaNumeroNombre = 0):
-		""" Función utilizada para la generación de los nuevos estados pertenecientes al AFD perteneciente al AFN
+						#Se agrega la transición al estado que se está analizando con el símbolo ingresado
+						for estados in estadosConvertidos.keys():
+							if set(estados) == estado:
+								estadosConvertidos[estados].agregarTransicion(simbolo, [estadosConvertidos[frozenset(estadoNuevo)]])
 
-			@param estado: Estado, estado perteneciente al diccionario estadosNoAnalizados, y al cual se le desea realizar la operación
-			@param simbolo: string, símbolo con el que se realizará la operación
-			@param letraNombre: string, letra que será acompañada del número especificado en el parámetro cuentaNumeroNombre, para el nombramiento de nuevos estados
-			@param cuentaNumeroNombre: string, número inicial de la cuenta para la colocación junto a la letra del nombre para la identificación de los nuevos estados
+						#Se agrega el resultado Mover
+						resultadosMover[frozenset(resultadoMover)] = estadoNuevo
 
-			@returns 0: en caso correcto // -1 : en caso de un error en el proceso de la operación
+						numEstado += 1
 
-			@precondition : el primer estado a analizar en el proceso debe ser resultado directo de la Cerradura Epsilon; La variable cuentaNumeroNombre se actualizará de forma que sea conocido cuál es el último número disponible para la generación de más nombres de estados
-			@postcondition : se elimina del diccionario estadosNoAnalizados el estado recién analizado y se agrega al diccionario estadosAnalizados
-		"""
-		pass
+				else:
+					#Ya se existe el estado y solo se crea la transición
+					for est in estadosConvertidos.keys():
+						if set(est) == estado:
+							estado = est
+							break
 
-	def generarAFD(self):
-		""" Función que genera un nuevo AFD
+					for estados in estadosConvertidos.keys():
+							if set(estados) == resultadosMover[resultadoMover]:
+								estadosConvertidos[estado].agregarTransicion(simbolo, [estadosConvertidos[estados]])
 
-			@retuns afd : AFD, autómata resultante
+		#Se agregan los estados al AFD
+		for conjunto,estado in estadosConvertidos.items():
+			afd.agregarEstado(estado)
 
-			@precondition se debió de haber realizado el proceso completo de la generalización de todos los estados resultantes en esta operación, finalmente el diccionario estadosNoAnalizados debe de estar vacío y el diccionario estadosAnalizados debe contener todos los estados convertidos
-		"""
-		pass
+			#print('conjunto')
+			#generador._imprimirConjuntoEstados(set(conjunto))
+
+
+		return afd

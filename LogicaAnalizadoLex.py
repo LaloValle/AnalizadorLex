@@ -9,6 +9,9 @@ class LogicaAnalizadorLex():
 
 		self._automatasGuardados = [None, None, None]
 
+	def getAutomataGuardado(self, indice):
+		return self._automatasGuardados[indice]
+
 	def opcionGenerarDeER(self, tipoAutomata, expresion, guardado):
 		if tipoAutomata == 'AFN':
 			ER = ExpresionRegular(expresion)

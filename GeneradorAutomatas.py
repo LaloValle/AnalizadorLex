@@ -1,7 +1,7 @@
 from Automatas import *
 
 """
-	Para la ejecución de graphviz:
+	Para la instalación de graphviz:
 
 	Ubuntu $ sudo apt install python-pydot python-pydot-ng graphviz
 
@@ -233,11 +233,15 @@ class GeneradorAFD():
 		return Estado('s{}'.format(str(numEstado)),{},aceptacion, inicial)
 
 	def _imprimirConjuntoEstados(self, conjunto):
-		print('{')
-		while len(conjunto) > 0:
-			print(conjunto.pop().getNombre(),end=',')
+		cadena = '{'
 
-		print('}')
+		while len(conjunto) > 0:
+			aux = conjunto.pop()
+			cadena += aux.getNombre() + ','
+
+		cadena += '}'
+
+		return cadena
 
 
 	@staticmethod
@@ -260,7 +264,6 @@ class GeneradorAFD():
 		estadosNoAnalizados.append(estadoInicial)
 
 		while estadosNoAnalizados:
-			#print('entramos ' + str(numEstado))
 
 			estado = estadosNoAnalizados[0]
 			#print(estado)
@@ -315,9 +318,5 @@ class GeneradorAFD():
 		#Se agregan los estados al AFD
 		for conjunto,estado in estadosConvertidos.items():
 			afd.agregarEstado(estado)
-
-			#print('conjunto')
-			#generador._imprimirConjuntoEstados(set(conjunto))
-
 
 		return afd

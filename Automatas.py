@@ -257,7 +257,10 @@ class Automata():
 				numero += 1
 				estadoAux.setNombre(letra + str(numero))
 			else:
-				estadoAux.setNombre(letra + 'f')
+				if estadoAux.getToken() == 0:
+					estadoAux.setNombre(letra + 'f')
+				else:
+					estadoAux.setNombre('T' + str(estadoAux.getToken()))
 
 			for simbolo,estados in estadoAux.getTransiciones().items():
 				for estado in estados:

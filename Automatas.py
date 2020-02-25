@@ -17,7 +17,7 @@ class Estado():
 		self._transiciones = transiciones
 		self._aceptacion = aceptacion
 		self._inicial = inicial
-		self._token = 0
+		self._token = -1
 
 	# Getters
 
@@ -28,10 +28,7 @@ class Estado():
 		return self._transiciones
 
 	def getEstadosTransicion(self, simbolo):
-		if simbolo not in self._transiciones:
-			return []
-
-		return self._transiciones[simbolo]
+		return self._transiciones[simbolo] if simbolo in self._transiciones else []
 
 	def isAceptacion(self):
 		return self._aceptacion

@@ -20,7 +20,19 @@ if error != -1:
 
         print(mensaje2)
 
-        afn.imprimirAutomataConsola()
-        afn.imprimirAutomata()
+        #Probamos la función mover
+        generadorAFD = GeneradorAFD()
+
+        conjunto = generadorAFD._cerraduraEpsilon({afn.getEstadoInicial()})
+
+        conjunto2 = generadorAFD._irA(set(conjunto), 'a')
+        afnAux = afn
+
+        afd = GeneradorAFD.generarAFDDeAFN(afnAux)
+
+        afd.imprimirAutomata()
+
+        ManejadorTabulares.generarTabular(afd, 'nombre')
+
 else:
     print('Error' + mensaje)

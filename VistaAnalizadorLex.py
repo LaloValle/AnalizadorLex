@@ -269,9 +269,14 @@ class VistaAnalizadorLex():
         Boton11.config(command=lambda:self._logica.operacionAFD('añadir a automata', AFDGuardadoCargado1.get()))
         
         Boton12= Button(frame3, text="Transformar AFN a AFD")
-        Boton12.grid(row=5,column=0,sticky="n",padx=10, pady=10, columnspan=2)
+        Boton12.grid(row=5,column=0,sticky="n",padx=10, pady=10)
         Boton12.config(activebackground="#004445", relief='flat', activeforeground='white', bg='#6fb98f', fg='white') 
         Boton12.config(command=lambda:self._logica.operacionAFD('transformar', AFDGuardadoCargado1.get()))
+
+        Boton13= Button(frame3, text="Generar Tabular")
+        Boton13.grid(row=5,column=1,sticky="n",padx=10, pady=10)
+        Boton13.config(activebackground="#004445", relief='flat', activeforeground='white', bg='#6fb98f', fg='white') 
+        Boton13.config(command=lambda:self._logica.operacionAFD('tabular', AFDGuardadoCargado1.get()))
                       
         label7=Label(frame3 , text="Guardar en:")
         label7.grid(row=3,column=2,sticky="w",padx=10, pady=10) 

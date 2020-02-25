@@ -144,15 +144,17 @@ class LogicaAnalizadorLex():
 
 				automataResultado.setAlfabeto(alfabetoAux)
 
+				for estadosAceptacion in automataResultado.getEstadosAceptacion():
+					estadosAceptacion.setToken(token)
+
 				automataResultado.renombreAutomaticoEstados('e')
+
+				automataResultado.imprimirAutomata()
 
 				if self._vista.getAFNguardadoSeleccionado() >= 0:
 					self._automatasGuardados[self._vista.getAFNguardadoSeleccionado()] = automataResultado
 				else:
 					self._vista.mostrarInformacion('Solo se imprimirá el autómata resultado de la operación elegida, no se eligió un espacio donde guardarlo')
-
-				automataResultado.getEstadosAceptacion()[0].setToken(token)
-				automataResultado.imprimirAutomata()
 
 			else:
 				self._vista.mostrarAdvertencia('El token no puede ser un valor negativo ni igual a cero')
@@ -160,7 +162,7 @@ class LogicaAnalizadorLex():
 
 	def operacionAFD(self, operacion, cadenaAutomataGuardado):
 		generador = GeneradorAFD()
-		operaciones = {'cerradura':[2, generador._cerraduraEpsilon] , 'mover':[3,generador._mover], 'irA':[3,generador._irA], 'añadir a automata':[1,self._agregarAutomataTransicionesEpsilon], 'transformar':[1, generador.generarAFDDeAFN]}
+		operaciones = {'cerradura':[2, generador._cerraduraEpsilon] , 'mover':[3,generador._mover], 'irA':[3,generador._irA], 'añadir a automata':[1,self._agregarAutomataTransicionesEpsilon], 'transformar':[1, generador.generarAFDDeAFN], 'tabular':[1, ManejadorTabulares.generarTabular]}
 
 		"""automata1 = None
 		automata2 = None
@@ -208,8 +210,16 @@ class LogicaAnalizadorLex():
 						resultado = operaciones[operacion][1]([estado] if type(automata) != set else set(automata),simbolo)
 
 				else:
-					#Se trata de añadir al automata transiciones epsilon o la transformación de un AFN a AFD
-					resultado = operaciones[operacion][1](automata)
+					#Se trata de añadir al automata transiciones epsilon o la transformación de un AFN a AFD o generar un tabular
+					if operacion == 'tabular':
+						if type(automata) != AFD:
+							self._vista.mostrarAdvertencia('Para generar el tabular de una autómata debe ser un AFD primero')
+							return -1
+						else:
+							resultado = operaciones[operacion][1](automata, self._vista.getAFDSimbolo() if self._vista.getAFDSimbolo() != '' else 'Tabular')
+
+					else:
+						resultado = operaciones[operacion][1](automata)
 
 			else:
 				self._vista.mostrarAdvertencia('El elemento seleccionado para los autómatas guardados esta vacío')
@@ -225,6 +235,11 @@ class LogicaAnalizadorLex():
 			self._automataTransicionesEpsilon.renombreAutomaticoEstados('S')
 
 			self._vista.mostrarInformacion('Se ha agregado exitosamente el autómata')
+
+		elif operacion == 'tabular':
+			self._vista.mostrarInformacion('Se ha generado un archivo con extension \'dat\' que contiene al Autómata tabulado (La tabla se mostrará en la consola)')
+
+			ManejadorTabulares()._imprimirTablaConsola(resultado)
 
 		else:
 			if guardadoSeleccionado >= 0:

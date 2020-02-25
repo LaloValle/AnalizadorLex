@@ -1,4 +1,5 @@
 from Automatas import *
+from tabulate import *
 
 """
 	Para la instalación de graphviz:
@@ -50,6 +51,7 @@ class GeneradorAFN():
 
 			estadoInicial.setInicial(False)
 			estadoAceptacion.setAceptacion(False)
+			estadoAceptacion.setToken(-1)
 
 			e0.agregarTransicion('ε',[estadoInicial])
 			estadoAceptacion.agregarTransicion('ε',[ef])
@@ -102,6 +104,7 @@ class GeneradorAFN():
 
 		estadoInicial.setInicial(False)
 		estadoAceptacion.setAceptacion(False)
+		estadoAceptacion.setToken(-1)
 
 		estadoAceptacion.agregarTransicion('ε',[estadoInicial,ef])
 		e0.agregarTransicion('ε',[estadoInicial])
@@ -138,6 +141,7 @@ class GeneradorAFN():
 
 		estadoInicial.setInicial(False)
 		estadoAceptacion.setAceptacion(False)
+		estadoAceptacion.setToken(-1)
 
 		estadoAceptacion.agregarTransicion('ε',[ef])
 		e0.agregarTransicion('ε',[estadoInicial,ef])
@@ -224,13 +228,19 @@ class GeneradorAFD():
 
 	def _crearNuevoEstadoConvertido(self, estadosAFN, numEstado, inicial = False):
 		aceptacion = False
+		estadoAux = None
+		token = -1
 
 		for auxEstado in range(len(estadosAFN)):
-			if estadosAFN.pop().isAceptacion():
+			token = estadosAFN.pop().getToken()
+			if token > -1:
 				aceptacion = True
 				break
 
-		return Estado('s{}'.format(str(numEstado)),{},aceptacion, inicial)
+		estadoAux = Estado('s{}'.format(str(numEstado)),{},aceptacion, inicial)
+		estadoAux.setToken(token)
+
+		return estadoAux
 
 	def _imprimirConjuntoEstados(self, conjunto):
 		cadena = '{'
@@ -266,18 +276,10 @@ class GeneradorAFD():
 		while estadosNoAnalizados:
 
 			estado = estadosNoAnalizados[0]
-			#print(estado)
-			#generador._imprimirConjuntoEstados(set(estado))
 			estadosNoAnalizados.remove(estado)
 
-			#print(type(estado))
-
 			for simbolo in afd.getAlfabeto():
-				#print('en simbolo ' + simbolo)
 				resultadoMover = generador._mover(set(estado), simbolo)
-				#print('resultadoMover')
-
-				#generador._imprimirConjuntoEstados(set(resultadoMover))
 
 				inResultadoMover = False
 				for resMover in resultadosMover.keys():
@@ -320,3 +322,63 @@ class GeneradorAFD():
 			afd.agregarEstado(estado)
 
 		return afd
+
+class ManejadorTabulares():
+
+	"""
+		Clase convertidora de AFD a su versión tabular y viceversa
+
+	"""
+
+	def _guardarTabular(self, nombre, tabla):
+		with open(nombre+'.dat' , 'w') as archivo:
+			for fila in tabla:
+				for i in range(len(fila)):
+					cadenaImpresion = fila[i] + ('|' if i < len(fila)-1 else '\n')
+
+					archivo.write(cadenaImpresion)
+
+	def _imprimirTablaConsola(self, tabla):
+		print(tabulate(tabla, headers='firstrow', tablefmt='psql'))
+
+	@staticmethod	
+	def generarTabular(automata, nombreArchivo):
+		estadosAux = list(automata.getEstados())
+		alfabetoAux = automata.getAlfabeto()
+		ordenEstados = 0
+
+		tablaFinal = [['Estado']+alfabetoAux+['Token']]
+
+		while estadosAux:
+			estado = estadosAux.pop(0)
+
+			if estado.getNombre()[-1] == str(ordenEstados):
+				#Estado siguiente según el orden numérico
+				filaAux = [estado.getNombre()[-1]]
+
+				for simbolo in alfabetoAux:
+					if estado.getEstadosTransicion(simbolo):
+						cadenaEstados = ''
+
+						for estadoTransicion in estado.getEstadosTransicion(simbolo):
+							cadenaEstados += estadoTransicion.getNombre()[-1] + ','
+						cadenaEstados = cadenaEstados[0:len(cadenaEstados)-1]
+
+						filaAux.append(cadenaEstados)
+
+					else:
+						filaAux.append('-1')
+
+				filaAux.append(str(estado.getToken()))
+
+				ordenEstados += 1
+
+			else:
+				#Estado no consecutivo
+				estadosAux.append(estado)
+
+			tablaFinal.append(filaAux)
+
+		ManejadorTabulares()._guardarTabular(nombreArchivo, tablaFinal)
+
+		return tablaFinal

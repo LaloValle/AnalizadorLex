@@ -29,27 +29,29 @@ class LogicaAnalizadorLex():
 		return 0
 
 
-	def opcionGenerarDeER(self, tipoAutomata, expresion, guardado):
-		if tipoAutomata == 'AFN':
-			ER = ExpresionRegular(expresion)
-			ER.reconocerAlfabeto()
-			error, mensaje = ER.conversionAPostfija()
+	def opcionGenerarDeER(self, tipoAutomata, expresion, guardado, token):
+		ER = ExpresionRegular(expresion)
+		ER.reconocerAlfabeto()
+		error, mensaje = ER.conversionAPostfija()
 
-			if error != -1:
-			    afn,mensaje = GeneradorAFN.generarAFNDePostfija(ER.getExpresionPostfija(),ER.getAlfabeto())
+		if error != -1:
+		    afn,mensaje = GeneradorAFN.generarAFNDePostfija(ER.getExpresionPostfija(),ER.getAlfabeto())
 
-			    if afn != -1:
-			        n,mensaje2 = afn.renombreAutomaticoEstados('e')
+		    if afn != -1:
+		        n,mensaje2 = afn.renombreAutomaticoEstados('e')
 
-			        if n >= 0:
-				        afn.imprimirAutomata()
+		        if n >= 0:
+		        	afn.getEstadosAceptacion()[0].setToken(token)
+		        	if tipoAutomata == 'AFD':
+		        		afd = GeneradorAFD.generarAFDDeAFN(afn)
+		        		afd.imprimirAutomata()
+		        		afn = afd
 
-				        self._automatasGuardados[guardado] = afn
-			else:
-			    print('Error' + mensaje)
+			        afn.imprimirAutomata()
 
+			        self._automatasGuardados[guardado] = afn
 		else:
-			print('Aún no se ha implementado la generación de los AFD')
+		    print('Error' + mensaje)
 
 	def operacionAFN(self, operacion, token):
 		
@@ -216,6 +218,7 @@ class LogicaAnalizadorLex():
 							self._vista.mostrarAdvertencia('Para generar el tabular de una autómata debe ser un AFD primero')
 							return -1
 						else:
+							print('>> En proceso de generación del tabular')
 							resultado = operaciones[operacion][1](automata, self._vista.getAFDSimbolo() if self._vista.getAFDSimbolo() != '' else 'Tabular')
 
 					else:
@@ -239,7 +242,7 @@ class LogicaAnalizadorLex():
 		elif operacion == 'tabular':
 			self._vista.mostrarInformacion('Se ha generado un archivo con extension \'dat\' que contiene al Autómata tabulado (La tabla se mostrará en la consola)')
 
-			ManejadorTabulares()._imprimirTablaConsola(resultado)
+			ManejadorTabulares().imprimirTablaConsola(resultado)
 
 		else:
 			if guardadoSeleccionado >= 0:

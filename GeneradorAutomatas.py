@@ -332,13 +332,73 @@ class ManejadorTabulares():
 
 	def _guardarTabular(self, nombre, tabla):
 		with open(nombre+'.dat' , 'w') as archivo:
-			for fila in tabla:
-				for i in range(len(fila)):
-					cadenaImpresion = fila[i] + ('|' if i < len(fila)-1 else '\n')
+			if type(tabla) == list:
+				for fila in tabla:
+					for i in range(len(fila)):
+						cadenaImpresion = fila[i] + ('|' if i < len(fila)-1 else '\n')
 
-					archivo.write(cadenaImpresion)
+						archivo.write(cadenaImpresion)
+			else:
+				archivo.write(tabla)
 
-	def _imprimirTablaConsola(self, tabla):
+	@staticmethod
+	def recuperarTabular(ruta):
+		tabular = []
+
+		with open(ruta, 'r') as archivo:
+			filas = archivo.readlines()
+
+			for fila in filas:
+				cadenaAux = ''
+				eraCaracter = False
+				filaAux = []
+
+				if fila[0] != '+':
+					for caracter in fila:
+						#Es una fila que contiene los datos tabulados
+						if caracter != '|' and ord(caracter) != 32:
+							cadenaAux += caracter
+						elif caracter == '|' or ord(caracter) == 32:
+							if eraCaracter:
+								filaAux.append(cadenaAux)
+								cadenaAux = ''
+
+						eraCaracter = False if (caracter == '|' or ord(caracter) == 32) else True
+
+					tabular.append(filaAux)
+
+		return tabular
+
+	@staticmethod
+	def generarAFDDeTabular(tabular):
+		alfabetoAux = tabular[0][1:len(tabular)-1]
+		afd = AFD('AFDTabular', alfabeto=alfabetoAux)
+
+		estadosAux = []
+
+		for i in range(1,len(tabular)):
+			fila = tabular[i]
+			estadosAux.append(Estado('s'+fila[0], inicial= True if fila[0] == '0' else False, aceptacion= True if fila[-1] != '-1' else False, token = int(fila[-1])))
+
+		contador = len(estadosAux)-1
+		while len(tabular) > 1:
+			fila = tabular.pop()
+			estado = estadosAux[contador]
+
+			for i in range(1, len(fila)-1):
+				if fila[i] != '-1':
+					estadosPorAgregar = fila[i].split(',')
+					for agregar in estadosPorAgregar:
+						estado.agregarTransicion(alfabetoAux[i-1],[estadosAux[int(agregar)]])
+
+			contador -= 1
+			afd.agregarEstado(estado)
+
+		return afd
+
+
+	@staticmethod
+	def imprimirTablaConsola(tabla):
 		print(tabulate(tabla, headers='firstrow', tablefmt='psql'))
 
 	@staticmethod	
@@ -352,8 +412,10 @@ class ManejadorTabulares():
 		while estadosAux:
 			estado = estadosAux.pop(0)
 
-			if estado.getNombre()[-1] == str(ordenEstados):
+			nombreAux = estado.getNombre()[1:len(estado.getNombre())]
+			if nombreAux == str(ordenEstados):
 				#Estado siguiente según el orden numérico
+
 				filaAux = [estado.getNombre()[-1]]
 
 				for simbolo in alfabetoAux:
@@ -361,7 +423,7 @@ class ManejadorTabulares():
 						cadenaEstados = ''
 
 						for estadoTransicion in estado.getEstadosTransicion(simbolo):
-							cadenaEstados += estadoTransicion.getNombre()[-1] + ','
+							cadenaEstados += nombreAux + ','
 						cadenaEstados = cadenaEstados[0:len(cadenaEstados)-1]
 
 						filaAux.append(cadenaEstados)
@@ -379,6 +441,6 @@ class ManejadorTabulares():
 
 			tablaFinal.append(filaAux)
 
-		ManejadorTabulares()._guardarTabular(nombreArchivo, tablaFinal)
+		ManejadorTabulares()._guardarTabular(nombreArchivo,tabulate(tablaFinal, headers='firstrow', tablefmt='grid'))
 
 		return tablaFinal

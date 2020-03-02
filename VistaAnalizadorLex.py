@@ -80,7 +80,11 @@ class VistaAnalizadorLex():
         
         CT1=Entry(frame1)
         CT1.config(fg='#434e52', width=45)
-        CT1.grid(row=1,column=0,sticky="w",padx=10, pady=10, columnspan=2)    
+        CT1.grid(row=1,column=0,sticky="w",padx=10, pady=10, columnspan=2)   
+
+        ERToken = Entry(frame1)
+        ERToken.config(fg='#434e52', width=10)
+        ERToken.grid(row=1,column=2,sticky="w",padx=10, pady=10) 
 
         label3=Label(frame1 , text="Generar:")
         label3.grid(row=2,column=0,sticky="w",padx=10, pady=10) 
@@ -88,12 +92,13 @@ class VistaAnalizadorLex():
         
         Boton1= Button(frame1, text="AFN", command="")
         Boton1.grid(row=3,column=0,sticky="n",padx=10, pady=10)
-        Boton1.config(command=lambda: self._logica.opcionGenerarDeER('AFN', CT1.get(), self._ERGuardadoSeleccionado))
+        Boton1.config(command=lambda: self._logica.opcionGenerarDeER('AFN', CT1.get(), self._ERGuardadoSeleccionado, int(ERToken.get())))
         Boton1.config(activebackground="#004445", relief='flat', activeforeground='white', width=15, bg='#6fb98f', fg='white')
         
         Boton2=Button(frame1, text="AFD", command="")
         Boton2.grid(row=3,column=1,sticky="n",padx=10, pady=10)
-        Boton2.config(state='disable', activebackground="#004445", relief='flat', activeforeground='white', width=15, bg='#6fb98f', fg='white')
+        Boton2.config(command=lambda: self._logica.opcionGenerarDeER('AFD', CT1.get(), self._ERGuardadoSeleccionado, int(ERToken.get())))
+        Boton2.config(activebackground="#004445", relief='flat', activeforeground='white', width=15, bg='#6fb98f', fg='white')
                       
         label4=Label(frame1 , text="Guardar en:")
         label4.grid(row=2,column=2,sticky="n",padx=10, pady=10) 

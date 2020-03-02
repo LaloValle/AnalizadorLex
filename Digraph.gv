@@ -1,0 +1,106 @@
+digraph {
+	graph [rankdir=LR]
+	ini [shape=point]
+	S0
+	ini -> S0
+	S31
+	S35
+	S36
+	S32
+	S33
+	S34
+	T10 [shape=doublecircle]
+	S21
+	S29
+	S30
+	S22
+	S23
+	S24
+	S25
+	S26
+	S27
+	S28
+	T20 [shape=doublecircle]
+	S13
+	S14
+	S15
+	S19
+	S20
+	S16
+	S17
+	S18
+	T30 [shape=doublecircle]
+	S10
+	S11
+	S12
+	T40 [shape=doublecircle]
+	S5
+	S8
+	S9
+	S6
+	S7
+	T50 [shape=doublecircle]
+	S4
+	T60 [shape=doublecircle]
+	S3
+	T70 [shape=doublecircle]
+	S2
+	T80 [shape=doublecircle]
+	S1
+	T90 [shape=doublecircle]
+	S0 -> S31 [label="ε"]
+	S0 -> S21 [label="ε"]
+	S0 -> S13 [label="ε"]
+	S0 -> S10 [label="ε"]
+	S0 -> S5 [label="ε"]
+	S0 -> S4 [label="ε"]
+	S0 -> S3 [label="ε"]
+	S0 -> S2 [label="ε"]
+	S0 -> S1 [label="ε"]
+	S31 -> S35 [label="ε"]
+	S31 -> S32 [label="ε"]
+	S35 -> S36 [label=S]
+	S36 -> S32 [label="ε"]
+	S32 -> S33 [label="ε"]
+	S33 -> S34 [label=D]
+	S34 -> S33 [label="ε"]
+	S34 -> T10 [label="ε"]
+	S21 -> S29 [label="ε"]
+	S21 -> S22 [label="ε"]
+	S29 -> S30 [label=S]
+	S30 -> S22 [label="ε"]
+	S22 -> S23 [label="ε"]
+	S23 -> S24 [label=D]
+	S24 -> S23 [label="ε"]
+	S24 -> S25 [label="ε"]
+	S25 -> S26 [label="-"]
+	S26 -> S27 [label="ε"]
+	S27 -> S28 [label=D]
+	S28 -> S27 [label="ε"]
+	S28 -> T20 [label="ε"]
+	S13 -> S14 [label=L]
+	S14 -> S15 [label="ε"]
+	S14 -> T30 [label="ε"]
+	S15 -> S19 [label="ε"]
+	S15 -> S16 [label="ε"]
+	S19 -> S20 [label=L]
+	S20 -> S18 [label="ε"]
+	S16 -> S17 [label=D]
+	S17 -> S18 [label="ε"]
+	S18 -> S15 [label="ε"]
+	S18 -> T30 [label="ε"]
+	S10 -> S11 [label="ε"]
+	S11 -> S12 [label=T]
+	S12 -> S11 [label="ε"]
+	S12 -> T40 [label="ε"]
+	S5 -> S8 [label="ε"]
+	S5 -> S6 [label="ε"]
+	S8 -> S9 [label=M]
+	S9 -> T50 [label="ε"]
+	S6 -> S7 [label=M]
+	S7 -> T50 [label="ε"]
+	S4 -> T60 [label=M]
+	S3 -> T70 [label=P]
+	S2 -> T80 [label=A]
+	S1 -> T90 [label=B]
+}

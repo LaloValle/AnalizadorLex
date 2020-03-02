@@ -12,12 +12,12 @@ class Estado():
 
 	"""
 
-	def __init__(self, nombre, transiciones = {} , aceptacion = False, inicial = False):
+	def __init__(self, nombre, transiciones = {} , aceptacion = False, inicial = False, token=-1):
 		self._nombre = nombre
 		self._transiciones = transiciones
 		self._aceptacion = aceptacion
 		self._inicial = inicial
-		self._token = -1
+		self._token = token
 
 	# Getters
 
@@ -192,7 +192,13 @@ class Automata():
 			#Finalmente los estados de aceptación
 			for aceptacion in estadosAceptacion:
 				print(aceptacion.getNombre() + '(f): ',end='')
-				print(aceptacion.getTransiciones())
+				for simbolo,es in aceptacion.getTransiciones().items():
+					print('{' + simbolo + '=>',end='')
+
+					for n in es:
+						print(',' + n.getNombre(),end='')
+
+					print('}')
 
 			estadosAceptacion.clear()
 

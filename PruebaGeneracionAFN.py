@@ -3,6 +3,15 @@ from ExpresionRegular import *
 from GeneradorAutomatas import *
 import sys
 
+
+tabular = ManejadorTabulares.recuperarTabular('AutomataER.dat')
+ManejadorTabulares.imprimirTablaConsola(tabular)
+
+afd2 = ManejadorTabulares.generarAFDDeTabular(tabular)
+
+afd2.imprimirAutomata()
+
+"""
 expresion = sys.argv[1]
 token = int(sys.argv[2])
 
@@ -30,12 +39,5 @@ if error != -1:
         tabular = ManejadorTabulares.generarTabular(afd, 'nombre')
         ManejadorTabulares.imprimirTablaConsola(tabular)
 
-        tabular = ManejadorTabulares.recuperarTabular('nombre.dat')
-        ManejadorTabulares.imprimirTablaConsola(tabular)
-
-        afd2 = ManejadorTabulares.generarAFDDeTabular(tabular)
-
-        afd2.imprimirAutomata()
-
 else:
-    print('Error' + mensaje)
+    print('Error' + mensaje)"""

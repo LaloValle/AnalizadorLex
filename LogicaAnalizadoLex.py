@@ -24,7 +24,7 @@ class LogicaAnalizadorLex():
 		self._automataTransicionesEpsilon.getEstadoInicial().agregarTransicion('ε',[estadoInicial])
 		self._automataTransicionesEpsilon.agregarEstados(automata.getEstados())
 
-		self._automataTransicionesEpsilon.setAlfabeto(self._automataTransicionesEpsilon.getAlfabeto()+automata.getAlfabeto())
+		self._automataTransicionesEpsilon.agregarAlfabeto(self._automataTransicionesEpsilon.getAlfabeto()+automata.getAlfabeto())
 
 		return 0
 
@@ -144,7 +144,7 @@ class LogicaAnalizadorLex():
 				else:
 					automataResultado = automata1
 
-				automataResultado.setAlfabeto(alfabetoAux)
+				automataResultado.agregarAlfabeto(alfabetoAux)
 
 				for estadosAceptacion in automataResultado.getEstadosAceptacion():
 					estadosAceptacion.setToken(token)
@@ -166,9 +166,6 @@ class LogicaAnalizadorLex():
 		generador = GeneradorAFD()
 		operaciones = {'cerradura':[2, generador._cerraduraEpsilon] , 'mover':[3,generador._mover], 'irA':[3,generador._irA], 'añadir a automata':[1,self._agregarAutomataTransicionesEpsilon], 'transformar':[1, generador.generarAFDDeAFN], 'tabular':[1, ManejadorTabulares.generarTabular]}
 
-		"""automata1 = None
-		automata2 = None
-		automataResultado = None"""
 		automata = None
 		resultado = None
 

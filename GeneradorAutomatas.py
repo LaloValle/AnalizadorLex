@@ -354,12 +354,21 @@ class ManejadorTabulares():
 				filaAux = []
 
 				if fila[0] != '+':
-					for caracter in fila:
+					for i in range(len(fila)):
 						#Es una fila que contiene los datos tabulados
+						caracter = fila[i]
 						if caracter != '|' and ord(caracter) != 32:
 							cadenaAux += caracter
 						elif caracter == '|' or ord(caracter) == 32:
-							if eraCaracter:
+							if caracter == '|' and i > 0:
+								if fila[i-1:i+1] == '\|':
+									cadenaAux += caracter
+									if ord(fila[i+1]) == 32 or ord(fila[i-2]) == 32:
+										#Es solo el símbolo
+										filaAux.append(cadenaAux)
+										cadenaAux = ''
+
+							elif eraCaracter:
 								filaAux.append(cadenaAux)
 								cadenaAux = ''
 
@@ -371,31 +380,42 @@ class ManejadorTabulares():
 
 	@staticmethod
 	def generarAFDDeTabular(tabular):
-		alfabetoAux = tabular[0][1:len(tabular)-1]
-		afd = AFD('AFDTabular', alfabeto=alfabetoAux)
+		alfabetoAux = tabular[0][1:len(tabular[0])-1]
+		afd = AFD('AFDTabular')
+		afd.setAlfabeto(alfabetoAux)
 
 		estadosAux = []
+
+		numeroEstados = 0
 
 		for i in range(1,len(tabular)):
 			fila = tabular[i]
 			estadosAux.append(Estado('s'+fila[0], inicial= True if fila[0] == '0' else False, aceptacion= True if fila[-1] != '-1' else False, token = int(fila[-1])))
+			numeroEstados += 1
 
-		contador = len(estadosAux)-1
+		afd.setEstados(estadosAux)
+
+		numeroEstados -= 1
+
 		while len(tabular) > 1:
 			fila = tabular.pop()
-			estado = estadosAux[contador]
+			transiciones = {}
 
 			for i in range(1, len(fila)-1):
 				if fila[i] != '-1':
 					estadosPorAgregar = fila[i].split(',')
 					for agregar in estadosPorAgregar:
-						estado.agregarTransicion(alfabetoAux[i-1],[estadosAux[int(agregar)]])
+						if alfabetoAux[i-1] in transiciones:
+							transiciones[alfabetoAux[i-1]] += [afd.getEstado('s'+agregar)]
+						else:
+							transiciones[alfabetoAux[i-1]] = [afd.getEstado('s'+agregar)]
 
-			contador -= 1
-			afd.agregarEstado(estado)
+			afd.getEstado('s'+str(numeroEstados)).setTransiciones(dict(transiciones))
+			numeroEstados -= 1
+
+			transiciones.clear()
 
 		return afd
-
 
 	@staticmethod
 	def imprimirTablaConsola(tabla):
@@ -416,14 +436,14 @@ class ManejadorTabulares():
 			if nombreAux == str(ordenEstados):
 				#Estado siguiente según el orden numérico
 
-				filaAux = [estado.getNombre()[-1]]
+				filaAux = [nombreAux]
 
 				for simbolo in alfabetoAux:
 					if estado.getEstadosTransicion(simbolo):
 						cadenaEstados = ''
 
 						for estadoTransicion in estado.getEstadosTransicion(simbolo):
-							cadenaEstados += nombreAux + ','
+							cadenaEstados += estadoTransicion.getNombre()[1:len(estadoTransicion.getNombre())] + ','
 						cadenaEstados = cadenaEstados[0:len(cadenaEstados)-1]
 
 						filaAux.append(cadenaEstados)

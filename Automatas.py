@@ -10,7 +10,18 @@ class Estado():
 			transiciones:	Diccionario que define las transiciones del estado con otros estados, la llave es un síbolo del alfabeto y los elementos descritos por la llave los estados a los que transiciona
 			aceptacion:		Valor Booleano lo denota como estado de aceptación
 
+		Se puede expresar un complemento de un conjunto de símbolos de la forma:
+			símbolo = '!,s1,s2,...,sn'
+
 	"""
+
+	@staticmethod
+	def estado(estado):
+		nuevoEstado = Estado(str(estado.getNombre()),aceptacion=bool(estado.isAceptacion),inicial=bool(estado.isInicial),token=int(estado.getToken()))
+		for simbolo,estados in estado.getTransiciones().items():
+			nuevoEstado.agregarTransicion(str(simbolo),estados)
+
+		return nuevoEstado
 
 	def __init__(self, nombre, transiciones = {} , aceptacion = False, inicial = False, token=-1):
 		self._nombre = nombre
@@ -28,7 +39,21 @@ class Estado():
 		return self._transiciones
 
 	def getEstadosTransicion(self, simbolo):
-		return self._transiciones[simbolo] if simbolo in self._transiciones else []
+		if simbolo in self._transiciones:
+			return self._transiciones[simbolo]
+		else:
+			#Se verifica que no haya complementos de un conjunto de simbolos
+			simbolosComplemento = []
+			estadosTransicion = []
+
+			for simbolos in self._transiciones.keys():
+				if simbolos[0] == '!':
+					#existe un complemento
+					if simbolo not in simbolos.split(','):
+						estadosTransicion = self._transiciones[simbolos]
+						break
+
+			return estadosTransicion
 
 	def isAceptacion(self):
 		return self._aceptacion
@@ -102,12 +127,12 @@ class Automata():
 	def getAlfabeto(self):
 		return self._alfabeto
 
-	"""def getEstado(self, nombre):
+	def getEstado(self, nombre):
 		for estado in self._estados:
 			if estado.getNombre() == nombre:
 				return estado
-			else:
-				return None"""
+
+		return None
 
 	def getEstadosAceptacion(self):
 		estadosAceptacion = []
@@ -163,6 +188,11 @@ class Automata():
 			return 0
 
 		return -1
+
+	def agregarAlfabeto(self, alfabeto):
+		for simbolo in alfabeto:
+			if simbolo not in self._alfabeto:
+				self._alfabeto.append(simbolo)
 
 	# Operaciones
 

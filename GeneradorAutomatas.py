@@ -331,7 +331,7 @@ class ManejadorTabulares():
 	"""
 
 	def _guardarTabular(self, nombre, tabla):
-		with open(nombre+'.dat' , 'w') as archivo:
+		with open(nombre , 'w') as archivo:
 			if type(tabla) == list:
 				for fila in tabla:
 					for i in range(len(fila)):

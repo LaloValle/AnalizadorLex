@@ -13,45 +13,45 @@ class AnalizadorLexico():
 		self._historialEstadosAceptacion = [[Estado.estado(self._estadoActual),0,'']]
 
 	def getToken(self):
-		if self._indiceCadena == len(self._cadena)-1:
+		if self._indiceCadena == len(self._cadena):
 			return 0
 
-		while self._indiceCadena < len(self._cadena)-1:
+		while self._indiceCadena < len(self._cadena):
 			estadoTransicion = self._estadoActual.getEstadosTransicion(self._cadena[self._indiceCadena])
-			
+
 			if estadoTransicion:
 				self._estadoActual = estadoTransicion[0]
 				self._indiceCadena += 1
-				self._ultimoLexema += self._cadena[self._indiceCadena]
+				self._ultimoLexema += self._cadena[self._indiceCadena-1]
 
 				if self._estadoActual.isAceptacion():
-					self._indiceUltimoEstadoAceptacion = int(self._indiceCadena) - 1
 
-					self._historialEstadosAceptacion.append([Estado.estado(self._estadoActual),int(self._indiceUltimoEstadoAceptacion),self._ultimoLexema])
-
-					return self._estadoActual.getToken()
+					self._historialEstadosAceptacion.append([Estado.estado(self._estadoActual),int(int(self._indiceCadena) - 1),self._ultimoLexema])
+					if self._indiceCadena == len(self._cadena):
+						return self._estadoActual.getToken()
 
 			else:
-				#No hay transiciones con el simbolo de la cadena
-				if self._indiceUltimoEstadoAceptacion >= 0:
-					self._indiceCadena = self._indiceUltimoEstadoAceptacion
-					self._estadoActual = self._historialEstadosAceptacion[-1][0]
-					self._ultimoLexema = self._historialEstadosAceptacion[-1][2]
-
-				else:
+				#No hay transiciones para el símbolo
+				if len(self._historialEstadosAceptacion) == 1:
 					#Error de entrada
 					self._estadoActual = None
 					return -1
+				
+				if len(self._historialEstadosAceptacion) > 1:
+					self._estadoActual = self._historialEstadosAceptacion[-2][0]
+					self._ultimoLexema = self._ultimoLexema[len(self._historialEstadosAceptacion[-1][2])+1:len(self._ultimoLexema)]
+
+					return self._historialEstadosAceptacion[-1][0].getToken()
 
 	def rewind(self):
 		self._historialEstadosAceptacion.pop()
 
-		self._estadoActual = self._historialEstadosAceptacion[-1][0]
-		self._indiceCadena = self._historialEstadosAceptacion[-1][1]
-		self._indiceUltimoEstadoAceptacion = self._historialEstadosAceptacion[-1][1]
+		self._estadoActual = self._historialEstadosAceptacion[-2][0]
+		self._indiceCadena = self._historialEstadosAceptacion[-2][1]
+		self._indiceUltimoEstadoAceptacion = self._historialEstadosAceptacion[-2][1]
 
 	def getUltimoLexema(self):
-		return self._ultimoLexema
+		return self._historialEstadosAceptacion[-1][2]
 
 class Token(object):
 

@@ -11,7 +11,6 @@ class AnalizadorSintactico():
         if T(afn):
             if Ep(afn):
                 return True
-
         return False
 
     def Ep(afn):

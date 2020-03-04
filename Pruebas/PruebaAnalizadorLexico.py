@@ -18,6 +18,5 @@ lexico = AnalizadorLexico(afdER, cadena)
 
 token = 100
 while token > 0:
-	print('entramos token')
 	token = lexico.getToken()
-	print(token,lexico.getUltimoLexema())
+	print(str(token) + ':' + lexico.getUltimoLexema())

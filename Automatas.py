@@ -39,6 +39,7 @@ class Estado():
 		return self._transiciones
 
 	def getEstadosTransicion(self, simbolo):
+		if simbolo == '|': simbolo = '\|'
 		if simbolo in self._transiciones:
 			return self._transiciones[simbolo]
 		else:
@@ -49,7 +50,8 @@ class Estado():
 			for simbolos in self._transiciones.keys():
 				if simbolos[0] == '!':
 					#existe un complemento
-					if simbolo not in simbolos.split(','):
+					simbolosComplemento = simbolos.split(',')
+					if simbolo not in simbolosComplemento:
 						estadosTransicion = self._transiciones[simbolos]
 						break
 

@@ -3,7 +3,17 @@ from ExpresionRegular import *
 from GeneradorAutomatas import *
 import sys
 
+
+tabular = ManejadorTabulares.recuperarTabular('AutomataER.dat')
+ManejadorTabulares.imprimirTablaConsola(tabular)
+
+afd2 = ManejadorTabulares.generarAFDDeTabular(tabular)
+
+afd2.imprimirAutomata()
+
+"""
 expresion = sys.argv[1]
+token = int(sys.argv[2])
 
 ER = ExpresionRegular(expresion)
 ER.reconocerAlfabeto()
@@ -11,6 +21,7 @@ error, mensaje = ER.conversionAPostfija()
 
 if error != -1:
     afn,mensaje = GeneradorAFN.generarAFNDePostfija(ER.getExpresionPostfija(),ER.getAlfabeto())
+    afn.getEstadosAceptacion()[0].setToken(token)
 
     if afn != -1:
         n,mensaje2 = afn.renombreAutomaticoEstados('e')
@@ -28,11 +39,5 @@ if error != -1:
         tabular = ManejadorTabulares.generarTabular(afd, 'nombre')
         ManejadorTabulares.imprimirTablaConsola(tabular)
 
-        tabular = ManejadorTabulares.recuperarTabular('nombre.dat')
-        print(tabular,'tabular')
-        ManejadorTabulares.imprimirTablaConsola(tabular)
-
-        afd2 = ManejadorTabulares.generarAFDDeTabular(tabular)
-
 else:
-    print('Error' + mensaje)
+    print('Error' + mensaje)"""

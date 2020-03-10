@@ -61,6 +61,8 @@ class GeneradorAFN():
 		#Se agrega el estado de aceptación
 		afn.agregarEstado(ef)
 
+		afn.renombreAutomaticoEstados('e')
+
 		return afn
 
 	def _generarConcatenacion(self,automatas):
@@ -83,6 +85,8 @@ class GeneradorAFN():
 		#Se conforma el nuevo autómata con las modificaciones realizadas
 		afn.agregarEstados(automatas[0].getEstados())
 		afn.agregarEstados(automatas[1].getEstados())
+
+		afn.renombreAutomaticoEstados('e')
 
 		return afn
 
@@ -111,6 +115,8 @@ class GeneradorAFN():
 
 		afn.agregarEstados([e0] + automata.getEstados() + [ef])
 
+		afn.renombreAutomaticoEstados('e')
+
 		return afn
 
 	def _generarCerraduraKleene(self,automata):
@@ -121,6 +127,8 @@ class GeneradorAFN():
 		afn = self._generarCerraduraPositiva(automata)
 
 		afn.getEstadoInicial().agregarTransicion('ε',[afn.getEstadosAceptacion()[0]])
+
+		afn.renombreAutomaticoEstados('e')
 
 		return afn
 
@@ -148,6 +156,8 @@ class GeneradorAFN():
 
 		#Se agregan los estados que conforman al automata antes de realizar la operación
 		afn.agregarEstados([e0] + automata.getEstados() + [ef])
+
+		afn.renombreAutomaticoEstados('e')
 
 		return afn
 
@@ -357,8 +367,12 @@ class ManejadorTabulares():
 					for i in range(len(fila)):
 						#Es una fila que contiene los datos tabulados
 						caracter = fila[i]
+
 						if caracter != '|' and ord(caracter) != 32:
-							cadenaAux += caracter
+							if caracter != '\\':
+								cadenaAux += caracter
+							elif fila[i-1] == '\\':
+								cadenaAux += '\\\\'
 						elif caracter == '|' or ord(caracter) == 32:
 							if caracter == '|' and i > 0:
 								if fila[i-1:i+1] == '\|':

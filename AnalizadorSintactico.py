@@ -1,111 +1,150 @@
 from AnalizadorLexico import *
 from GeneradorAutomatas import GeneradorAFN
 
-class AnalizadorSintactico():
+class AnalizadorSintacticoER():
 
     def __init__(self, lexico):
         self._lexico = lexico
         self._generador = GeneradorAFN()
 
-    def E(afn):
-        if T(afn):
-            if Ep(afn):
+    def analizar(self,afn):
+        analisisValido = self.E(afn)
+
+        if analisisValido:
+            #Se verifica que todos los caracteres de la cadena hayan sido analizados
+            if self._lexico.getToken() != 0:
+                analisisValido = False
+
+        return analisisValido
+
+    def E(self,afn):
+        if self.T(afn):
+            if self.Ep(afn):
                 return True
         return False
 
-    def Ep(afn):
+    def Ep(self,afn):
         token = self._lexico.getToken()
         afn2 = AFN('AFN2')
 
-        if token == Token.UNION:
-            if T(afn2):
-                afn = generador._generarUnion([afn,afn2])
+        if token >= 0:
+            if token == TokenER.UNION:
+                if self.T(afn2):
+                    afn.automata(self._generador._generarUnion([afn,afn2]))
 
-                if Ep(afn):
-                    return True
+                    if self.Ep(afn):
+                        return True
+                return False
+
+        else:
             return False
 
-        self._lexico.rewind()
+        if token > 0:
+            self._lexico.rewind()
         return True
 
-    def T(afn):
-        if C(afn):
-            if Tp(afn):
+    def T(self,afn):
+        if self.C(afn):
+            if self.Tp(afn):
                 return True
 
         return False
 
-    def Tp(afn):
+    def Tp(self,afn):
         token = self._lexico.getToken()
         afn2 = AFN('AFN2')
 
-        if token == Token.CONCATENACION:
-            if C(afn2):
-                afn = generador._generarConcatenacion([afn,afn2])
+        if token >= 0:
+            if token == TokenER.CONCATENACION:
+                if self.C(afn2):
+                    afn.automata(self._generador._generarConcatenacion([afn,afn2]))
 
-                if Tp(afn):
-                    return True
+                    if self.Tp(afn):
+                        return True
+                return False
+        else:
             return False
 
-        self._lexico.rewind()
+        if token > 0:
+            self._lexico.rewind()
         return True
 
-    def C(afn):
-        if F(afn):
-            if Cp(afn):
+    def C(self,afn):
+        if self.F(afn):
+            if self.Cp(afn):
                 return True
         return False
 
-    def Cp(afn):
+    def Cp(self,afn):
         token = self._lexico.getToken()
 
-        if token == Token.CERRADURA_POSITIVA:
-            afn = generador._generarCerraduraPositiva([afn])
+        if token >= 0:
+            if token == TokenER.CERRADURA_POSITIVA:
+                afn.automata(self._generador._generarCerraduraPositiva([afn]))
 
-            if Cp(afn):
-                return True
+                if self.Cp(afn):
+                    return True
+                return False
+
+            elif token == TokenER.CERRADURA_KLEENE:
+                afn.automata(self._generador._generarCerraduraKleene([afn]))
+
+                if self.Cp(afn):
+                    return True
+                return False
+
+            elif token == TokenER.OPCIONAL:
+                afn.automata(self._generador._generarOpcional([afn]))
+
+                if self.Cp(afn):
+                    return True
+                return False
+
+        else:
             return False
 
-        elif token == Token.CERRADURA_KLEENE:
-            afn = generador._generarCerraduraKleene([afn])
-
-            if Cp(afn):
-                return True
-            return False
-
-        elif token == Token.OPCIONAL:
-            afn = generador._generarOpcional([afn])
-
-            if Cp(afn):
-                return True
-            return False
-
-        self._lexico.rewind()
+        if token > 0:
+            self._lexico.rewind()
         return True
 
-    def F(afn):
+    def F(self,afn):
         token = self._lexico.getToken()
 
-        if token == Token.PARENTESIS_IZQUIERDO:
-            if E(afn):
-                token = self._lexico.getToken()
+        if token >= 0:
+            if token == TokenER.PARENTESIS_IZQUIERDO:
+                if self.E(afn):
+                    token = self._lexico.getToken()
+                    
+                    if token == TokenER.PARENTESIS_DERECHO:
+                        return True
+
+                return False
+
+            elif token == TokenER.SIMBOLO:
+                afn.automata(self._generador._generarAutomata(self._lexico.getUltimoLexemaValido()))
+                return True
                 
-                if token == Token.PARENTESIS_DERECHO:
-                    return True
-
+        else:
             return False
-
-        elif token == Token.BACK_SLASH:
-            token = self._lexico.getToken()
-
-            if token in (Token.UNION,Token.CONCATENACION,Token.CERRADURA_POSITIVA,Token.CERRADURA_KLEENE,Token.OPCIONAL):
-                afn = self._generador._generarAutomata('\\{}'.format(self._lexico.getUltimoLexema()))
-                return True
-            return False
-
-        elif token == Token.SIMBOLO:
-            afn = self._generador._generarAutomata(self._lexico.getUltimoLexema())
-            return True
 
         self._lexico.rewind()
         return True
+
+class TokenER(object):
+
+    #Constantes referentes a los token de las ER
+    UNION = 10
+
+    CONCATENACION = 20
+
+    CERRADURA_POSITIVA = 30
+
+    CERRADURA_KLEENE = 40
+
+    OPCIONAL = 50
+
+    SIMBOLO = 60
+
+    PARENTESIS_IZQUIERDO = 70
+
+    PARENTESIS_DERECHO = 71

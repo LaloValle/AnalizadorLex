@@ -26,8 +26,12 @@ while token > 0:
 	token = lexico.getToken()
 
 	if token > 0:
-		filaAnalisis = [lexico.getUltimoLexema(),token]
+		filaAnalisis = [lexico.getUltimoLexemaValido(),token]
 		tablaAnalisis.append(filaAnalisis)
 
 #Se imprimen los resultados
 print(tabulate(tablaAnalisis, headers='firstrow', tablefmt='psql'))
+
+
+if token < 0:
+	print('ERROR>> Se ha encontrador un error en la cadena con índice {} y lexema no válido {}'.format(lexico.getIndiceCadena() ,lexico.getUltimoLexema()))

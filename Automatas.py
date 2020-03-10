@@ -39,19 +39,28 @@ class Estado():
 		return self._transiciones
 
 	def getEstadosTransicion(self, simbolo):
-		if simbolo == '|': simbolo = '\|'
+		if len(simbolo) == 1:
+			if ord(simbolo) == 92:
+				simbolo = '\\\\'
+
 		if simbolo in self._transiciones:
 			return self._transiciones[simbolo]
 		else:
-			#Se verifica que no haya complementos de un conjunto de simbolos
+			#Se verifica que exista un conjunto de símbolos en el estado
 			simbolosComplemento = []
 			estadosTransicion = []
 
 			for simbolos in self._transiciones.keys():
-				if simbolos[0] == '!':
+				if simbolos.find(',') >= 0:
 					#existe un complemento
-					simbolosComplemento = simbolos.split(',')
-					if simbolo not in simbolosComplemento:
+					simbolosConjunto = simbolos.split(',')
+
+					if simbolosConjunto[0] == '!':
+						#Conjunto complemento
+						if simbolo not in simbolosConjunto:
+							estadosTransicion = self._transiciones[simbolos]
+							break
+					elif simbolo in simbolosConjunto:
 						estadosTransicion = self._transiciones[simbolos]
 						break
 
@@ -307,6 +316,11 @@ class Automata():
 			return 0,'Renombre Correcto'
 		else:
 			return -1,'Error en el Renombre'
+
+	def automata(self, automata):
+		self._nombre = automata.getNombre()
+		self._estados = automata.getEstados()
+		self._alfabeto = automata.getAlfabeto()
 
 
 
